@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Coinflip Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 300px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+</head>
+<body>
+    <h1>Universal Coinflip</h1>
+    <h3>It always shows the same result for the same input</h3>
+    <input type="text" id="seedInput" placeholder="Enter a seed string" />
+    <button onclick="flipCoin()">Flip Coin</button>
+    <button onclick="generateRandomSeed()">Random Seed</button>
+    <button onclick="setCurrentDateTimeAsSeed()">Use Current Date & Time</button>
+    <div class="result" id="result"></div>
+
+    <script>
+        function flipCoin() {
+            const input = document.getElementById('seedInput').value;
+            if (input) {
+                const result = calculateCoinFlip(input);
+                document.getElementById('result').innerText = result;
+            } else {
+                document.getElementById('result').innerText = 'Please enter a seed string or generate a random one.';
+            }
+        }
+
+        function generateRandomSeed() {
+            const randomSeed = getRandomString(10);
+            document.getElementById('seedInput').value = randomSeed;
+            flipCoin();
+        }
+
+        function setCurrentDateTimeAsSeed() {
+            const currentDateTime = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+            document.getElementById('seedInput').value = currentDateTime;
+            flipCoin();
+        }
+
+        function calculateCoinFlip(input) {
+            const numericValue = hashStringToNumber(input);
+            const sqrtValue = Math.sqrt(numericValue);
+            const sqrtString = sqrtValue.toString();
+            const decimalPart = sqrtString.split('.')[1] || '';
+            const fifthDigit = decimalPart.length >= 5 ? decimalPart[4] : '0';
+
+            return (parseInt(fifthDigit) % 2 === 0) ? 'heads' : 'tails';
+        }
+
+        function hashStringToNumber(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash << 5) - hash + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash) + 1;
+        }
+
+        function getRandomString(length) {
+            const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+    </script>
+</body>
+</html>
